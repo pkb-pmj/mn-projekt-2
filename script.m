@@ -9,3 +9,10 @@ A = rand([n,n]);
 Y = eye(n);
 X = GECP(A, Y);
 max(abs(A*X - Y), [], "all")
+%% test3: compare with linsolve
+n = 100;
+A = rand([n,n]);
+Y = eye(n);
+X1 = GECP(A, Y);
+X2 = linsolve(A, Y);
+max(abs(X1 - X2), [], "all")
