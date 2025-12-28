@@ -28,7 +28,7 @@ for k = 1:n
     for i = k+1:n
         M(i,k:end) = M(i,k:end) - M(k,k:end) * M(i,k) / M(k,k);
     end
-    % zero elements explicitly to be sure they are exactly 0
+    % zero elements below explicitly to be sure they are exactly 0
     M(k+1:n,k) = 0;
 end
 % normalize pivot elements
@@ -40,6 +40,8 @@ for k = n:-1:1
     for i = 1:k-1
         M(i,k:end) = M(i,k:end) - M(k,k:end) * M(i,k); % / M(k,k) == 1
     end
+    % zero elements above explicitly to be sure they are exactly 0
+    M(1:k-1,k) = 0;
 end
 % extract X
 X = M(:,n+1:end);
