@@ -88,3 +88,76 @@ disp(table( ...
     t, ...
     E, ...
     'VariableNames',{'Metoda','Czas',sprintf('norm(C*z-c,%g)',p)}))
+
+%%
+n = 5;
+iters = 100;
+T = zeros([iters,5]);
+E = zeros([iters,5]);
+
+for i = 1:iters
+    A = rand([n,n]);
+    B = rand([n,n]);
+    a = rand([n,1]);
+    b = rand([n,1]);
+    C = A + 1i*B;
+    c = a + 1i*b;
+    M = [A,-B;B,A];
+    m = [a; b];
+    t = zeros(5,1);
+    e = zeros(5,1);
+    p = Inf;
+    
+    tic
+    z = linsolve(C, c); % wbudowana funkcja
+    t(1) = toc;
+    e(1) = norm(C*z-c, p);
+    
+    tic
+    z = GEPP(C,c); % GEPP na zespolonej
+    t(2) = toc;
+    e(2) = norm(C*z-c, p);
+    
+    tic
+    z = GECP(C,c); % GECP na zespolonej
+    t(3) = toc;
+    e(3) = norm(C*z-c, p);
+    
+    tic
+    z = GEPP(M, m); % GEPP z użyciem macierzy blokowej
+    z = z(1:n) + 1i*z(n+1:2*n);
+    t(4) = toc;
+    e(4) = norm(C*z-c, p);
+    
+    tic
+    z = GECP(M, m); % GECP z użyciem macierzy blokowej
+    z = z(1:n) + 1i*z(n+1:2*n);
+    t(5) = toc;
+    e(5) = norm(C*z-c, p);
+
+    T(i, :) = t;
+    E(i, :) = e;
+end
+
+%% plot time
+% speed gradually increases during first 10-30 iterations, possibly JIT compilation?
+plot(1:iters, T)
+set(gca,'yscale','log')
+xlabel("iteration")
+ylabel("time")
+legend(["linsolve";"GEPP(C,c)";"GECP(C,c)";"GEPP(M, m)";"GECP(M, m)"])
+
+%% plot error
+plot(1:iters, E)
+set(gca,'yscale','log')
+xlabel("iteration")
+ylabel("error")
+legend(["linsolve";"GEPP(C,c)";"GECP(C,c)";"GEPP(M, m)";"GECP(M, m)"])
+
+%% plot error vs time
+scatter(T, E)
+set(gca,'xscale','log')
+set(gca,'yscale','log')
+xlabel("time")
+ylabel("error")
+legend(["linsolve";"GEPP(C,c)";"GECP(C,c)";"GEPP(M, m)";"GECP(M, m)"])
