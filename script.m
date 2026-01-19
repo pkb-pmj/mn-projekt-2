@@ -139,20 +139,23 @@ for i = 1:iters
     E(i, :) = e;
 end
 
+%%
+methodNames = ["linsolve","GEPP(C,c)","GECP(C,c)","GEPP(M, m)","GECP(M, m)"];
+
 %% plot time
 % speed gradually increases during first 10-30 iterations, possibly JIT compilation?
 plot(1:iters, T)
 set(gca,'yscale','log')
 xlabel("iteration")
 ylabel("time")
-legend(["linsolve";"GEPP(C,c)";"GECP(C,c)";"GEPP(M, m)";"GECP(M, m)"])
+legend(methodNames)
 
 %% plot error
 plot(1:iters, E)
 set(gca,'yscale','log')
 xlabel("iteration")
 ylabel("error")
-legend(["linsolve";"GEPP(C,c)";"GECP(C,c)";"GEPP(M, m)";"GECP(M, m)"])
+legend(methodNames)
 
 %% plot error vs time
 scatter(T, E)
@@ -160,4 +163,27 @@ set(gca,'xscale','log')
 set(gca,'yscale','log')
 xlabel("time")
 ylabel("error")
-legend(["linsolve";"GEPP(C,c)";"GECP(C,c)";"GEPP(M, m)";"GECP(M, m)"])
+legend(methodNames)
+
+%% plot error correlation
+% errors for all methods are closely correlated
+plotmatrix(E);
+ax = findall(gcf,'Type','axes');
+% set(ax,'XScale','log','YScale','log')
+for k = 1:numel(ax)
+    if any(strcmp({ax(k).Children.Type},'line'))
+        set(ax(k),'XScale','log','YScale','log')
+    end
+end
+
+%% plot time correlation
+% time for all methods is also correlated
+% makes sense, if GEPP swaps rows then GECP also swaps rows
+plotmatrix(T);
+ax = findall(gcf,'Type','axes');
+% set(ax,'XScale','log','YScale','log')
+for k = 1:numel(ax)
+    if any(strcmp({ax(k).Children.Type},'line'))
+        set(ax(k),'XScale','log','YScale','log')
+    end
+end
