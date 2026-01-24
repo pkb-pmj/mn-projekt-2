@@ -167,22 +167,27 @@ for k = 1:numel(ax)
     end
 end
 
-
-%%
 %% mean time vs matrix size n
 
-ns = [20 40 60 80 100 120 140 160 200];
-iters = 10;          % uśrednianie
+ns = [10 20 50 100 200 500 1000];
+itersVec = [100 100 100 50 20 10 5];
 meanT = zeros(length(ns), 5);
 meanE = zeros(length(ns), 5);
 
 for k = 1:length(ns)
     n = ns(k);
+    iters = itersVec(k);
     T = zeros(iters,5);
     E = zeros(iters,5);
     for i = 1:iters
+        disp([n, i])
+
         A = rand([n,n]);
         B = rand([n,n]);
+        % A = hilb(n);
+        % B = hilb(n);
+        % A = pascal(n);
+        % B = pascal(n);
         a = rand([n,1]);
         b = rand([n,1]);
 
@@ -196,9 +201,10 @@ for k = 1:length(ns)
     meanE(k,:) = mean(E,1);
 end
 
-%% plot mean time & error vs n
+%% plot mean time vs n
 figure
 plot(ns, meanT, '-o', 'LineWidth', 1.5)
+set(gca,'xscale','log')
 set(gca,'yscale','log')
 xlabel('rozmiar macierzy: n')
 ylabel('średni czas[s]')
@@ -212,10 +218,10 @@ set(gcf, 'Position', [100 100 600 400])
 filename = 'time_vs_n';
 print(gcf, filename, '-dpng', '-r300')   % 300 DPI
 
-
-
+%% plot mean error vs n
 figure
 plot(ns, meanE, '-o', 'LineWidth', 1.5)
+set(gca,'xscale','log')
 set(gca,'yscale','log')
 xlabel('rozmiar macierzy: n')
 ylabel('średni błąd')
