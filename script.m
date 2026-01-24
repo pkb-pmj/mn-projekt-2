@@ -100,63 +100,32 @@ for i = 1:iters
     B = rand([n,n]);
     a = rand([n,1]);
     b = rand([n,1]);
-    C = A + 1i*B;
-    c = a + 1i*b;
-    M = [A,-B;B,A];
-    m = [a; b];
-    t = zeros(5,1);
-    e = zeros(5,1);
-    p = 2;
     
-    tic
-    z = linsolve(C, c); % wbudowana funkcja
-    t(1) = toc;
-    e(1) = norm(C*z-c, p);
-    
-    tic
-    z = GEPP(C,c); % GEPP na zespolonej
-    t(2) = toc;
-    e(2) = norm(C*z-c, p);
-    
-    tic
-    z = GECP(C,c); % GECP na zespolonej
-    t(3) = toc;
-    e(3) = norm(C*z-c, p);
-    
-    tic
-    z = GEPP(M, m); % GEPP z użyciem macierzy blokowej
-    z = z(1:n) + 1i*z(n+1:2*n);
-    t(4) = toc;
-    e(4) = norm(C*z-c, p);
-    
-    tic
-    z = GECP(M, m); % GECP z użyciem macierzy blokowej
-    z = z(1:n) + 1i*z(n+1:2*n);
-    t(5) = toc;
-    e(5) = norm(C*z-c, p);
+    [t, e] = TimeMethods(A,B,a,b);
 
     T(i, :) = t;
     E(i, :) = e;
 end
 
+%%
 methodNames = ["linsolve","GEPP(C,c)","GECP(C,c)","GEPP(M, m)","GECP(M, m)"];
 
-% plot time
-% speed gradually increases during first 10-30 iterations, possibly JIT compilation?
-%plot(1:iters, T)
-%set(gca,'yscale','log')
-%xlabel("iteration")
-%ylabel("time")
-%legend(methodNames)
+%% plot time
+% speed gradually increases during first 10-30 iterations (for small n), possibly JIT compilation?
+plot(1:iters, T)
+set(gca,'yscale','log')
+xlabel("iteration")
+ylabel("time")
+legend(methodNames)
 
-% plot error
-%plot(1:iters, E)
-%set(gca,'yscale','log')
-%xlabel("iteration")
-%ylabel("error")
-%legend(methodNames)
+%% plot error
+plot(1:iters, E)
+set(gca,'yscale','log')
+xlabel("iteration")
+ylabel("error")
+legend(methodNames)
 
-% plot error vs time
+%% plot error vs time
 scatter(T, E)
 set(gca,'xscale','log')
 set(gca,'yscale','log')
@@ -184,8 +153,11 @@ for k = 1:numel(ax)
 end
 
 %% plot time correlation
+% for small n:
 % time for all methods is also correlated
 % makes sense, if GEPP swaps rows then GECP also swaps rows
+% for big n:
+% no strong correlation visible
 plotmatrix(T);
 ax = findall(gcf,'Type','axes');
 % set(ax,'XScale','log','YScale','log')
@@ -213,37 +185,11 @@ for k = 1:length(ns)
         B = rand([n,n]);
         a = rand([n,1]);
         b = rand([n,1]);
-        C = A + 1i*B;
-        c = a + 1i*b;
-        M = [A,-B;B,A];
-        m = [a; b];
 
-        tic
-        z = linsolve(C, c);
-        T(i,1) = toc;
-        E(i,1) = norm(C*z-c, p);
-
-        tic
-        z = GEPP(C,c);
-        T(i,2) = toc;
-        E(i,2) = norm(C*z-c, p);
-
-        tic
-        z = GECP(C,c);
-        T(i,3) = toc;
-        E(i,3) = norm(C*z-c, p);
-
-        tic
-        z = GEPP(M, m);
-        z = z(1:n) + 1i*z(n+1:2*n);
-        T(i,4) = toc;
-        E(i,4) = norm(C*z-c, p);
-
-        tic
-        z = GECP(M, m);
-        z = z(1:n) + 1i*z(n+1:2*n);
-        T(i,5) = toc;
-        E(i,5) = norm(C*z-c, p);
+        [t, e] = TimeMethods(A,B,a,b);
+    
+        T(i, :) = t;
+        E(i, :) = e;
     end
 
     meanT(k,:) = mean(T,1);
